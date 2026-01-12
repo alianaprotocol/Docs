@@ -43,7 +43,7 @@ ALI 代币总量恒定，无通胀风险，设计上追求长期价值的稳步�
 - **BASE_RATE**: 1e16（初始基率：每 1 USDT 产出 0.1 ALI）
 - **权重 (WEIGHT_DIVISOR=100)**：
   - `DEPOSIT_WEIGHT` = 100（存款事件权重 1.0x）
-  - `COMPOUND_WEIGHT` = 125（复投事件权重 1.5x）
+  - `COMPOUND_WEIGHT` = 150（复投事件权重 1.5x）
 - **挖矿上限**：`miningCap = 600,000,000e18`，累计分发量 `totalMined` 不得超过此上限
 - **分发方式**：`MiningController` 从自身余额向用户转账 ALI，不调用增发
 
@@ -70,8 +70,7 @@ ALI 不仅仅是一个治理代币，它是打开 Aliana 高级权益的“金�
 
 ### 3.1 协议费分红 (Staking for Yield)
 目前协议收取 5% (`ADMIN_FEE_PERCENT`) 的管理费。在代币模型引入后，建议调整分配结构：
-*   **3%**：继续流向 `TREASURY_WALLET`（团队运营成本）。
-*   **1%**：流向 `ReserveVault`（作为《健康监控系统》的备付金）。
+*   **4%**：继续流向 `TREASURY_WALLET`（团队运营成本）。
 *   **1%**：**回购并分配给 ALI 质押者**。
     *   *机制*：智能合约定期将这 1% 的 USDT 在 DEX 换成 ALI，然后分发给 `AliStaking` 池的质押者。
 
