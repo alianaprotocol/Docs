@@ -37,17 +37,17 @@ ALI 代币总量恒定，无通胀风险，设计上追求长期价值的稳步�
 
 PoC 挖矿依据对主协议的真实贡献进行加权产出，并通过时间衰减控制长期产出速度。所有奖励均从**预注入的 6 亿 ALI 挖矿池**中转账分发，不进行额外增发。
 
-#### A. 合约参数（与实现对齐）
-- **EPOCH_DURATION**: 30 days
-- **DECAY_BPS**: 300（每 30 天衰减 3%）
-- **BASE_RATE**: 1e16（初始汇率：每 1 USDT 产出 0.01 ALI）
+#### A. 合约参数
+- **EPOCH_DURATION**: 30 （30天减产期）
+- **DECAY_BPS**: 300（每 30 天产出衰减 3%）
+- **BASE_RATE**: 1e16（初始基率：每 1 USDT 产出 0.01 ALI）
 - **权重 (WEIGHT_DIVISOR=100)**：
   - `DEPOSIT_WEIGHT` = 100（存款事件权重 1.0x）
   - `COMPOUND_WEIGHT` = 125（复投事件权重 1.25x）
 - **挖矿上限**：`miningCap = 600,000,000e18`，累计分发量 `totalMined` 不得超过此上限
 - **分发方式**：`MiningController` 从自身余额向用户转账 ALI，不调用增发
 
-#### B. 计算公式（简化）
+#### B. 精简计算公式
 ```
 finalReward = (amount * currentRate / 1e18) * weight / WEIGHT_DIVISOR
 // 受 miningCap 与 MiningController 当前余额双重约束
@@ -61,9 +61,6 @@ finalReward = (amount * currentRate / 1e18) * weight / WEIGHT_DIVISOR
   - 年 4–6：≈20%（≈1.2 亿）
   - 年 6–10：≈15%（≈0.9 亿）
   - 年 10+：≈5%（≈0.3 亿）
-
-#### D. 邀请挖矿
-- 目前不通过“额外铸造”方式发放邀请挖矿奖励；推荐与团队奖励在主协议的层级与领导力规则中计算，不直接影响 ALI 产出总量。
 
 ---
 
