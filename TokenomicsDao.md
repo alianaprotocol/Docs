@@ -40,10 +40,10 @@ ALI 代币总量恒定，无通胀风险，设计上追求长期价值的稳步�
 #### A. 合约参数
 - **EPOCH_DURATION**: 30 （30天减产期）
 - **DECAY_BPS**: 300（每 30 天产出衰减 3%）
-- **BASE_RATE**: 1e16（初始基率：每 1 USDT 产出 0.01 ALI）
+- **BASE_RATE**: 1e16（初始基率：每 1 USDT 产出 0.1 ALI）
 - **权重 (WEIGHT_DIVISOR=100)**：
   - `DEPOSIT_WEIGHT` = 100（存款事件权重 1.0x）
-  - `COMPOUND_WEIGHT` = 125（复投事件权重 1.25x）
+  - `COMPOUND_WEIGHT` = 125（复投事件权重 1.5x）
 - **挖矿上限**：`miningCap = 600,000,000e18`，累计分发量 `totalMined` 不得超过此上限
 - **分发方式**：`MiningController` 从自身余额向用户转账 ALI，不调用增发
 
