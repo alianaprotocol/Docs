@@ -60,10 +60,15 @@
   - modeParams(mode) — 不同模式下的 AlianaProtocol 参数配置
 - 默认模式参数:
   - Normal — 常态：低保留费、无限日提现
+    - 数值：reserveFeeBps=200，minWithdrawAmount=1e18，dailyUserWithdrawLimit=0
   - Watch — 观察：提高保留费、设置适中提现门槛与上限
+    - 数值：reserveFeeBps=500，minWithdrawAmount=20e18，dailyUserWithdrawLimit=800e18
   - Throttle — 限流：高保留费、较高门槛与较低上限
+    - 数值：reserveFeeBps=1000，minWithdrawAmount=50e18，dailyUserWithdrawLimit=400e18
   - Stabilize — 稳定：更高保留费、严格门槛与较小上限
+    - 数值：reserveFeeBps=2000，minWithdrawAmount=100e18，dailyUserWithdrawLimit=100e18
   - Emergency — 紧急：极高保留费、极高门槛、几乎禁止提现
+    - 数值：reserveFeeBps=5000，minWithdrawAmount=500e18，dailyUserWithdrawLimit=1
 - 维护入口:
   - maintain(totalEstimatedObligation) — 评估负债并按需切换模式/触发注入
   - setModeParams(mode, params) — 设置指定模式的参数集
