@@ -139,3 +139,117 @@
   - proposers[] — 具有提出队列权限的账户集合
   - executors[] — 具有执行队列事务权限的账户集合
   - admin — 初始管理员（可移交至治理）
+
+---
+
+## 按使用场景的关键参数视图
+
+> 说明：本节从“怎么用”的角度，将高频使用和高风险参数按场景归类，并为每个参数标注：
+> - 风险：高/中/低（对资金安全、用户体验的影响）
+> - 可变性：常量（部署锁死）/构造期固定/链上可调
+
+### 场景 1：用户存款、提现与推荐
+
+- 存款门槛与限制（影响用户进入门槛）
+  - AlianaProtocol.MIN_DEPOSIT_AMOUNT — [风险：中][可变性：常量]
+  - AlianaProtocol.MAX_DEPOSIT_AMOUNT — [风险：中][可变性：常量]
+  - AlianaProtocol.MAX_USER_POSITIONS — [风险：中][可变性：常量]
+
+- 提现门槛与限制（直接影响用户流动性体验）
+  - AlianaProtocol.MIN_WITHDRAW_AMOUNT — [风险：高][可变性：常量]
+  - AlianaProtocol.minWithdrawAmount（动态）— [风险：高][可变性：链上可调，经 HealthController]
+  - AlianaProtocol.dailyUserWithdrawLimit — [风险：高][可变性：链上可调，经 HealthController]
+
+- 推荐与团队参数（影响拉新激励结构）
+  - AlianaProtocol.REFERRER_MINIMUM_DEPOSIT — [风险：中][可变性：常量]
+  - AlianaProtocol.MAX_REFERRAL_DEPTH — [风险：中][可变性：常量]
+  - AlianaProtocol.MIN_DIRECTS_LEVEL_6_10/11_15/16_20 — [风险：中][可变性：常量]
+  - AlianaProtocol.LEADERSHIP_* 数组（奖励比例、团队人数、团队体量）— [风险：中][可变性：常量]
+
+> 使用建议：
+> - 产品设计阶段重点关注本组参数，决定用户门槛和裂变强度。
+> - 运营变化（如活动）优先通过动态费率/限额调节，而不是改动这些常量。
+
+### 场景 2：收益率、挖矿与代币产出
+
+- 协议基础收益率（USDT 端）
+  - AlianaProtocol.BASE_DAILY_RETURN_PERCENT — [风险：高][可变性：常量]
+  - AlianaProtocol.TIER_DAILY_ROI_PERCENTS — [风险：高][可变性：常量]
+  - AlianaProtocol.TIER_DEPOSIT_THRESHOLDS — [风险：中][可变性：常量]
+
+- 挖矿/代币产出曲线（ALI 端）
+  - MiningController.BASE_RATE — [风险：高][可变性：构造期固定]
+  - MiningController.DECAY_BPS — [风险：中][可变性：构造期固定]
+  - MiningController.EPOCH_DURATION — [风险：中][可变性：构造期固定]
+  - MiningController.DEPOSIT_WEIGHT / COMPOUND_WEIGHT — [风险：中][可变性：构造期固定]
+
+> 使用建议：
+> - 设计经济模型时，一次性敲定本组参数，部署后不再调整，避免预期管理风险。
+> - 需要临时调节收益时，优先使用 HealthController 相关动态参数，而不是重新部署主协议。
+
+### 场景 3：风险控制与健康模式
+
+- 动态健康参数（主协议侧）
+  - AlianaProtocol.adminFeeBps — [风险：高][可变性：链上可调，经 HealthController]
+  - AlianaProtocol.reserveFeeBps — [风险：高][可变性：链上可调，经 HealthController]
+  - AlianaProtocol.minWithdrawAmount — [风险：高][可变性：链上可调]
+  - AlianaProtocol.dailyUserWithdrawLimit — [风险：高][可变性：链上可调]
+  - AlianaProtocol.healthMode — [风险：中][可变性：链上可调]
+
+- HealthController 模式与阈值
+  - HealthController.currentMode — [风险：高][可变性：链上可调，经角色]
+  - HealthController.thresholds（各模式触发点）— [风险：高][可变性：链上可调]
+  - HealthController.modeParams(mode) — [风险：高][可变性：链上可调]
+  - HealthController.launchTimestamp — [风险：低][可变性：链上可调]
+
+> 使用建议：
+> - 将本组参数视为“风控面板”，仅授予 POLICY_MAKER_ROLE/治理合约。
+> - 任何大幅调整前，需要对用户提现体验和资金流向做模拟评估。
+
+### 场景 4：资金金库与注入主协议
+
+- 资金存储与唯一资金流
+  - ReserveVault.stableToken — [风险：高][可变性：构造期固定]
+  - ReserveVault.protocol — [风险：高][可变性：构造期固定]
+  - ReserveVault.deposit(amount) — [风险：中][可变性：函数行为在代码中固定]
+  - ReserveVault.injectToProtocol(amount) — [风险：高][可变性：函数行为在代码中固定]
+
+- 主协议注入入口
+  - AlianaProtocol.injectFund(amount) — [风险：高][可变性：函数行为在代码中固定]
+
+> 使用建议：
+> - stableToken 与 protocol 在部署时一次性确认，视为“强绑定关系”，不通过治理修改。
+> - 对金库出入金进行链上监控，可直接关注 ReserveVault 与 AlianaProtocol 之间的转账与事件。
+
+### 场景 5：治理、投票与时间锁
+
+- 治理投票参数
+  - AlianaGovernor.votingDelay — [风险：中][可变性：构造期固定]
+  - AlianaGovernor.votingPeriod — [风险：中][可变性：构造期固定]
+  - AlianaGovernor.proposalThreshold — [风险：高][可变性：构造期固定]
+  - AlianaGovernor.quorumFraction — [风险：高][可变性：构造期固定]
+
+- 时间锁与执行安全
+  - AlianaTimelock.minDelay — [风险：高][可变性：构造期固定]
+  - AlianaTimelock.proposers[] — [风险：高][可变性：链上可调或移交]
+  - AlianaTimelock.executors[] — [风险：高][可变性：链上可调或移交]
+  - AlianaTimelock.admin — [风险：高][可变性：可移交，最终推荐移交给治理]
+
+> 使用建议：
+> - 上线主网前慎重选择治理与时间锁参数，确保既能响应调整需求，又不会让单方快速修改关键参数。
+> - 实际运维时，建议通过治理升级流程来变更 proposer/executor，而不是私下多签直接操作。
+
+### 场景 6：代币与锁仓治理权
+
+- ALI 代币
+  - AlianaToken.MINTER_ROLE — [风险：高][可变性：链上可调（角色可变更）]
+  - 初始总量（构造时铸造到 initialHolder）— [风险：高][可变性：构造期固定]
+
+- vALI 锁仓治理
+  - VeAliana.MIN_LOCK_DURATION / MAX_LOCK_DURATION — [风险：中][可变性：构造期固定]
+  - VeAliana.getBoostAmount — [风险：中][可变性：函数逻辑固定]
+  - VeAliana.locks(user) — [风险：中][可变性：随用户操作动态变化]
+
+> 使用建议：
+> - 严格管理 MINTER_ROLE 的持有者（通常应为治理合约或多签）。
+> - 通过宣传 MIN_LOCK_DURATION / MAX_LOCK_DURATION 和 boost 机制，引导长期锁仓提高治理参与度。
