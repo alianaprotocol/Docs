@@ -143,52 +143,7 @@ DAO 可以通过提案修改以下内容：
 
 ---
 
-## 5. 链上实施建议
-
-### 5.1 新增合约模块
-1.  **`AlianaToken.sol`**：
-    *   基于 `ERC20Votes`，支持快照投票。
-    *   包含 `mint` 权限控制（仅限 `MiningController`）。
-2.  **`MiningController.sol`**：
-    *   管理挖矿速率、减产周期。
-    *   计算用户应得 Token。
-3.  **`AliStaking.sol`**：
-    *   用户质押 ALI，领取 USDT 分红（来自回购）。
-    *   提供 `getBoostMultiplier(user)` 接口给主协议查询等级加成。
-
-### 5.2 主协议改造 (`AlianaProtocol.sol`)
-需要增加钩子函数以支持“挖矿”和“等级加成”：
-
-```solidity
-// 1. 挖矿钩子
-function makeDeposit(...) {
-    // ... 原有逻辑 ...
-    if (miningController != address(0)) {
-        miningController.notifyDeposit(msg.sender, amount); // 触发挖矿
-    }
-}
-
-function compoundDailyRewards(...) {
-    // ... 原有逻辑 ...
-    if (miningController != address(0)) {
-        miningController.notifyCompound(msg.sender, amount); // 触发高权重挖矿
-    }
-}
-
-// 2. 等级加成读取
-function _getTierIndex(uint256 amount) internal view returns (uint256) {
-    uint256 effectiveAmount = amount;
-    // 叠加 Token 质押带来的虚拟额度
-    if (aliStaking != address(0)) {
-        effectiveAmount += aliStaking.getBoostAmount(msg.sender);
-    }
-    // ... 原有等级判断逻辑 ...
-}
-```
-
----
-
-## 6. 总结
+## 5. 总结
 
 该模型通过引入 **ALI Token**，解决了三个核心问题：
 1.  **资金健康**：通过复投挖矿加权，引导用户减少提现。
