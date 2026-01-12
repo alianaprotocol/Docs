@@ -132,12 +132,13 @@ DAO 可以通过提案修改以下内容：
 
 1.  **健康系统参数**：
     *   调整 `minWithdrawAmount`（最小提现额）。
-    *   调整 `maxDailyWithdrawPerUser`（限流阈值）。
+    *   调整 `maxDailyWithdrawPerUser`（每日最大提现限额）。
+    *   调整 `reserveFeeBps`（储备金费率）。
+    *   调整 `MAX_DEPOSIT_AMOUNT`（用户最大存款额）。
 2.  **模式切换**：
     *   投票决定是否进入 `Stabilize`（去杠杆）或 `Emergency`（紧急）模式。
-    *   *注*：紧急模式通常允许“多签委员会”快速开启，但“解除”必须经过 DAO 投票。
 3.  **财库分配**：
-    *   决定 `ReserveVault` 中的资金何时释放、释放多少用于偿付用户。
+    *   决定 `ReserveVault` 中的资金何时释放、释放多少到主协议资金池。
 
 ### 4.3 治理流程 (Lifecycle)
 1.  **提案 (Propose)**：持有 > 1% 总量的 vALI 用户发起提案（例如：“将储备金费率从 2% 调至 3%”）。
