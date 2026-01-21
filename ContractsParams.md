@@ -4,7 +4,7 @@
 - 文件: [AlianaProtocol.sol](file:///Users/takkuentan/Desktop/aliana/contracts/AlianaProtocol.sol)
 - 常量参数（设计目标配置，当前合约版本将在后续升级中对齐）:
   - INVESTMENT_CYCLE_DAYS = 50 — 投资结算周期（天）
-  - MIN_DEPOSIT_AMOUNT = 10 ether — 用户单笔最小存入 USDT（18 位精度）
+  - MIN_DEPOSIT_AMOUNT = 1 ether — 用户单笔最小存入 USDT（18 位精度）
   - MAX_DEPOSIT_AMOUNT = 1000 ether — 用户单笔最大存入 USDT（18 位精度）
   - MIN_WITHDRAW_AMOUNT = 1 ether — 用户单笔最小提现 USDT（18 位精度）
   - REFERRER_MINIMUM_DEPOSIT = 10 ether — 成为推荐人所需最低入金（资格阈值）
