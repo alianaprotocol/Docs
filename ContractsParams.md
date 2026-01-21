@@ -2,14 +2,14 @@
 
 ## AlianaProtocol
 - 文件: [AlianaProtocol.sol](file:///Users/takkuentan/Desktop/aliana/contracts/AlianaProtocol.sol)
-- 常量参数:
-  - INVESTMENT_CYCLE_DAYS = 25 — 投资结算周期（天）
+- 常量参数（设计目标配置，当前合约版本将在后续升级中对齐）:
+  - INVESTMENT_CYCLE_DAYS = 50 — 投资结算周期（天）
   - MIN_DEPOSIT_AMOUNT = 10 ether — 用户单笔最小存入 USDT（18 位精度）
   - MAX_DEPOSIT_AMOUNT = 1000 ether — 用户单笔最大存入 USDT（18 位精度）
   - MIN_WITHDRAW_AMOUNT = 1 ether — 用户单笔最小提现 USDT（18 位精度）
   - REFERRER_MINIMUM_DEPOSIT = 10 ether — 成为推荐人所需最低入金（资格阈值）
   - ADMIN_FEE_PERCENT = 500 — 管理费率（BPS，500=5%）
-  - BASE_DAILY_RETURN_PERCENT = 400 — 基础日收益率（BPS，400=4%）
+  - BASE_DAILY_RETURN_PERCENT = 200 — 基础日收益率（BPS，200=2%）
   - PERCENT_DIVISOR = 10000 — 百分比基点分母（BPS 标准）
   - ONE_DAY_IN_SECONDS = 1 days — 一天的秒数（时间计算基准）
   - MAX_USER_POSITIONS = 100 — 单用户最大持仓数量上限
@@ -191,6 +191,32 @@
 > 使用建议：
 > - 设计经济模型时，一次性敲定本组参数，部署后不再调整，避免预期管理风险。
 > - 需要临时调节收益时，优先使用 HealthController 相关动态参数，而不是重新部署主协议。
+
+#### 推荐发行窗口与参数方案（PoC 挖矿）
+
+- 设计目标（基于总量 10 亿 ALI）
+  - 挖矿额度：**6 亿 ALI**（约 60% 通过 PoC 挖出）
+  - 主发行窗口：**前 6 年释放约 80–85% 挖矿额度**（≈ 4.8–5.1 亿）
+  - 完整发行窗口：**10 年左右累计释放约 95% 挖矿额度**（≈ 5.7 亿）
+  - 10 年之后：保留小幅长尾产出，主要用于维持活跃度，对总量影响可忽略
+
+- 对应参数建议（在现有实现基础上）
+  - EPOCH_DURATION：30 days（保持不变，方便按月理解）
+  - DECAY_BPS：300（每 30 天衰减 3%）
+  - BASE_RATE：1e16（初始 0.01 ALI / 1 USDT，可视业务体量微调）
+  - 行为权重：DEPOSIT_WEIGHT=100，COMPOUND_WEIGHT=125（复投略优于单次入金）
+  - 挖矿总上限（建议新增变量）：miningCap = 600_000_000e18
+
+- 目标发行节奏（以 6 亿 ALI 挖矿额度为参考）
+  - 第 0–2 年：≈ 35%（约 2.1 亿 ALI）
+  - 第 2–4 年：≈ 25%（约 1.5 亿 ALI）
+  - 第 4–6 年：≈ 20%（约 1.2 亿 ALI）
+  - 第 6–10 年：≈ 15%（约 0.9 亿 ALI）
+  - 第 10 年以后：≈ 5%（约 0.3 亿 ALI，作为长尾缓慢释放）
+
+> 实现要点：
+> - 在 MiningController 中增加 `miningCap` 与 `totalMined`，在 `_mintReward` 中确保 `totalMined + finalReward <= miningCap`。
+> - 若未来需调整 BASE_RATE/DECAY_BPS，需重新评估上述年度分布，但整体“6 年主窗口、10 年完整窗口”的结构可保持不变。
 
 ### 场景 3：风险控制与健康模式
 
